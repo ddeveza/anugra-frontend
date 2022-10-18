@@ -47,6 +47,7 @@ function Crud() {
       });
  */
     toast.promise(Axios.post(`${baseUrl}/insert`, formData), {
+      toastId: 'Add',
       pending: {
         render() {
           setLoading(true);
@@ -82,28 +83,38 @@ function Crud() {
     formData.append('articleImage', fileName);
     formData.append('id', id);
 
-    await Axios.put(`${baseUrl}/update`, formData)
-      .then((res) => {
-        const updatedValue = res.data;
-        console.log({ updatedValue });
-        setFoodList((prev) =>
-          prev.map((p) => {
-            if (p._id === res.data._id) {
-              return { ...p, updatedValue };
-            }
-            return p;
-          })
-        );
-        setForceRender(!forceRender);
-      })
-      .catch((err) => {
-        console.log(err);
-        console.log('updated');
-      });
+    toast.promise(Axios.put(`${baseUrl}/update`, formData), {
+      toastId: 'Update',
+      pending: {
+        render() {
+          setLoading(true);
+          return 'Image is uploading';
+        },
+      },
+      success: {
+        render({ data }) {
+          console.log({ data });
+          const updatedValue = data.data;
+          setFoodList((prev) =>
+            prev.map((p) => {
+              if (p._id === data.data._id) {
+                return { ...p, updatedValue };
+              }
+              return p;
+            })
+          );
+          setForceRender(!forceRender);
+          setfoodName('');
+          setDays('');
+          setFileName('');
+          return 'Successfully Updated';
+        },
+        autoClose: 1000,
+        hideProgressBar: true,
+      },
+    });
 
-    setfoodName('');
-    setDays('');
-    setFileName('');
+
     /* */
   };
 
@@ -227,8 +238,9 @@ function Crud() {
               />
               <button
                 type='button'
-                className='btn'
+                className={'btn'}
                 onClick={() => clickUpdate(val._id)}
+                disabled={loading}
               >
                 Update
               </button>
